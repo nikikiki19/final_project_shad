@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  db:
+    build:
+      context: .
+      dockerfile: docker/postgres/Dockerfile
+    container_name: my_postgres
+    restart: always
+    ports:
+      - "5445:5432"
+    environment:
+      - POSTGRES_USER=postgres_user
+      - POSTGRES_PASSWORD=postgres_pass
+      - POSTGRES_DB=fastapi_db
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: my_fastapi_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - db_host=db
+      - db_name=fastapi_db
+      - db_username=postgres_user
+      - db_password=postgres_pass
+      - DATABASE_URL=postgresql://postgres_user:postgres_pass@db:5432/fastapi_db
